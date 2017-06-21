@@ -5,7 +5,7 @@ vpath %.h include
 vpath %.o src:lib
 
 CC = gcc
-CFLAGS = -std=c99
+CFLAGS = -std=c99 -O2 -Wall -pedantic -ansi
 LDFLAGS = -lncurses
 
 SUBDIRS = lib src
@@ -13,7 +13,7 @@ OBJECTS = core.o graph.o main.o
 
 all: prepare $(OBJECTS)
 		#clear
-		$(CC) -o fm $(OBJECTS) $(CFLAGS) $(LDFLAGS) -g
+		$(CC) -o fm $(OBJECTS) $(CFLAGS) $(LDFLAGS)
 		./fm
 
 prepare: $(SUBDIRS)

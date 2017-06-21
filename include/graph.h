@@ -4,8 +4,6 @@
 #include <curses.h>
 #include "core.h"
 
-#define KEY_ENTER 10
-
 int rows, cols;
 
 void init_graph();

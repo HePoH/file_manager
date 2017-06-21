@@ -18,6 +18,8 @@ void init_graph() {
 
 	init_pair(1, COLOR_WHITE, COLOR_CYAN);
         init_pair(2, COLOR_WHITE, COLOR_BLUE);
+	init_pair(3, COLOR_WHITE, COLOR_BLACK);
+	init_pair(4, COLOR_BLACK, COLOR_WHITE);
 }
 
 void init_workspace(DIR_INFO** ld, DIR_INFO** rd){
@@ -39,19 +41,33 @@ void print_dir(DIR_INFO* di, int bg_c) {
 
 	wclear(di->m_wnd);
 
-        wprintw(di->m_wnd, "\n[ PATH ]: %s\n\n", di->path);
-        while(p) {
+    	box(di->p_wnd, '|', '-');
+	wattron(di->p_wnd, A_BOLD);
+	wattron(di->p_wnd, COLOR_PAIR(4));
+	wmove(di->p_wnd, 0, cols / 4 - strlen(di->path) / 2);
+        wprintw(di->p_wnd, "~ %s ~", di->path);
+	wattroff(di->p_wnd, COLOR_PAIR(4));
+    	wattroff(di->p_wnd, A_BOLD);
+
+	wrefresh(di->p_wnd);
+
+    	wattron(di->m_wnd, A_BOLD);
+	while(p) {
 		if (p == di->current_file) {
 			wattron(di->m_wnd, COLOR_PAIR(bg_c));
 			wprintw(di->m_wnd, " %s \n", p->value.name);
-			wattroff(di->m_wnd, COLOR_PAIR(bg_c)); 
+			wattroff(di->m_wnd, COLOR_PAIR(bg_c));
 		}
-		else
+		else {
+			wattron(di->m_wnd, COLOR_PAIR(3));
 			wprintw(di->m_wnd, " %s \n", p->value.name);
+			wattroff(di->m_wnd, COLOR_PAIR(3));
+		}
 
 		p = p->next;
         }
 
+	wattroff(di->m_wnd, A_BOLD);
         wprintw(di->m_wnd, "\n Count: %d\n", di->file_count);
 	wrefresh(di->m_wnd);
 

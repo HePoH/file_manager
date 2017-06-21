@@ -19,7 +19,6 @@ int main(){
 					cd->current_file = cd->current_file->prev;
 					print_dir(cd, 1);
 				}
-				wprintw(cd->m_wnd, "KEY_UP!!!!!!!!!!!!!\n");
 				break;
 
 			case KEY_DOWN:
@@ -27,13 +26,13 @@ int main(){
 					cd->current_file = cd->current_file->next;
 					print_dir(cd, 1);
 				}
-				wprintw(cd->m_wnd, "KEY_DOWN!!!!!!!!!!!!!\n");
 				break;
 
 			case KEY_LEFT:
 				if (cd == rd) {
 					print_dir(cd, 2);
 					cd = ld;
+					chdir(cd->path);
 					print_dir(cd, 1);
 				}
 				break;
@@ -42,8 +41,9 @@ int main(){
 				if (cd == ld) {
                                         print_dir(cd, 2);
                                         cd = rd;
+					chdir(cd->path);
                                         print_dir(cd, 1);
-                                }  
+                                }
                                 break;
 
 			case KEY_HOME:
@@ -55,15 +55,26 @@ int main(){
                         case KEY_END:
 				cd->current_file = cd->tail_file;
                                 print_dir(cd, 1);
-                                break;
 
-			case KEY_ENTER:
+				break;
+
+			case 10:
+				if (!chdir(cd->current_file->value.name)) {
+					free_fil(&cd);
+					get_dir_info(".", &cd);
+					print_dir(cd, 1);
+				}
+				else
+					perror("chdir");
 				break;
 		}
 	}
 
-	getchar();
-
 	close_graph();
+
+	free(ld);
+	free(rd);
+	cd = NULL;
+
 	return 0;
 }

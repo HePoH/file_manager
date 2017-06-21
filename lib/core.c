@@ -1,13 +1,34 @@
 #include "../include/core.h"
 
 void init_core(DIR_INFO** ld, DIR_INFO** rd, DIR_INFO** cd) {
-	*ld = get_dir_info(getenv("PWD"));
-	*rd = get_dir_info(getenv("HOME"));
+	*ld = (DIR_INFO*) malloc(sizeof(DIR_INFO));
+	*rd = (DIR_INFO*) malloc(sizeof(DIR_INFO));
+
+	chdir(getenv("PWD"));
+	get_dir_info(getenv("PWD"), ld);
+
+	chdir(getenv("HOME"));
+	get_dir_info(getenv("HOME"), rd);
+
 	*cd = *ld;
 }
 
-DIR_INFO* get_dir_info(char *path) {
-	DIR_INFO* di = NULL;
+void free_fil(DIR_INFO** di) {
+	FILE_INFO_LIST *p = NULL, *q = NULL;
+        p = (*di)->head_file;
+
+        while(p) {
+		q = p;
+                p = p->next;
+		free(q);
+        }
+
+	(*di)->head_file = NULL;
+	(*di)->current_file = NULL;
+	(*di)->tail_file = NULL;
+}
+
+void get_dir_info(char* path, DIR_INFO** di) {
 	struct dirent **fnl;
 	int fc;
 
@@ -16,13 +37,12 @@ DIR_INFO* get_dir_info(char *path) {
 	if (fc < 0)
 		perror("scandir");
 	else {
-		int i = 0;
+		int i = 1;
 
-		di = (DIR_INFO*) malloc(fc * sizeof(DIR_INFO));
-		getcwd(di->path, BUF_SIZE);
-		di->file_count = fc - 2;
+		getcwd((*di)->path, BUF_SIZE);
+		(*di)->file_count = fc - 2;
 
-		if (fc > 0) {
+		if (fc > 1) {
 			FILE_INFO_LIST* head = NULL;
 			head = (FILE_INFO_LIST*) malloc(sizeof(FILE_INFO_LIST));
 
@@ -35,15 +55,13 @@ DIR_INFO* get_dir_info(char *path) {
 			head->next = NULL;
 			head->prev = NULL;
 
-			di->head_file = head;
-			di->current_file = head;
+			(*di)->head_file = head;
+			(*di)->current_file = head;
 
 			i++;
 		}
 
 		for (; i < fc; i++) {
-			//printf("%d - %s [%d] %d\n", fnl[i]->d_ino, fnl[i]->d_name, fnl[i]->d_type, fnl[i]->d_reclen);
-
 			FILE_INFO_LIST* fil = NULL;
 			fil = (FILE_INFO_LIST*) malloc(sizeof(FILE_INFO_LIST));
 
@@ -54,19 +72,17 @@ DIR_INFO* get_dir_info(char *path) {
 			fil->value.mod_date = 0;
 
 			fil->next = NULL;
-			fil->prev = di->current_file;
+			fil->prev = (*di)->current_file;
 
-			di->current_file->next = fil;
-			di->current_file = fil;
+			(*di)->current_file->next = fil;
+			(*di)->current_file = fil;
 
 			free(fnl[i]);
 		}
 
-		di->tail_file = di->current_file;
-		di->current_file = di->head_file;
+		(*di)->tail_file = (*di)->current_file;
+		(*di)->current_file = (*di)->head_file;
 
 		free(fnl);
 	}
-
-	return di;
 }

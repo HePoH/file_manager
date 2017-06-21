@@ -44,6 +44,7 @@ typedef struct di {
 
 
 void init_core(DIR_INFO** ld, DIR_INFO** rd, DIR_INFO** cd);
-DIR_INFO* get_dir_info();
+void free_fil(DIR_INFO** di);
+void get_dir_info(char* path, DIR_INFO** di);
 
 #endif
