@@ -1,7 +1,7 @@
 #ifndef CORE_H
 #define CORE_H
 
-#define _SVID_SOURCE
+#define _DEFAULT_SOURCE
 #define BUF_SIZE 255
 
 #include <stdio.h>

@@ -44,8 +44,8 @@ void print_dir(DIR_INFO* di, int bg_c) {
     	box(di->p_wnd, '|', '-');
 	wattron(di->p_wnd, A_BOLD);
 	wattron(di->p_wnd, COLOR_PAIR(4));
-	wmove(di->p_wnd, 0, cols / 4 - strlen(di->path) / 2);
-        wprintw(di->p_wnd, "~ %s ~", di->path);
+	wmove(di->p_wnd, 0, cols / 4 - strlen(di->path) / 2 - 3);
+        wprintw(di->p_wnd, "[ %s ]", di->path);
 	wattroff(di->p_wnd, COLOR_PAIR(4));
     	wattroff(di->p_wnd, A_BOLD);
 

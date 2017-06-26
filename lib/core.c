@@ -4,10 +4,18 @@ void init_core(DIR_INFO** ld, DIR_INFO** rd, DIR_INFO** cd) {
 	*ld = (DIR_INFO*) malloc(sizeof(DIR_INFO));
 	*rd = (DIR_INFO*) malloc(sizeof(DIR_INFO));
 
-	chdir(getenv("PWD"));
+	if (chdir(getenv("PWD")) == -1) {
+		perror("chdir");
+		return;
+	}
+
 	get_dir_info(getenv("PWD"), ld);
 
-	chdir(getenv("HOME"));
+	if (chdir(getenv("HOME")) == -1) {
+		perror("chdir");
+		return;
+	}
+
 	get_dir_info(getenv("HOME"), rd);
 
 	*cd = *ld;
@@ -39,12 +47,19 @@ void get_dir_info(char* path, DIR_INFO** di) {
 	else {
 		int i = 1;
 
-		getcwd((*di)->path, BUF_SIZE);
+		if (getcwd((*di)->path, BUF_SIZE) == NULL)
+			strncpy((*di)->path, "-", BUF_SIZE - 1);
+
 		(*di)->file_count = fc - 2;
 
 		if (fc > 1) {
 			FILE_INFO_LIST* head = NULL;
-			head = (FILE_INFO_LIST*) malloc(sizeof(FILE_INFO_LIST));
+
+			head = malloc(sizeof(FILE_INFO_LIST));
+			if (head == NULL) {
+				perror("malloc");
+				return;
+			}
 
 			strncpy(head->value.name, fnl[i]->d_name, BUF_SIZE - 1);
 			strncpy(head->value.type, "-", BUF_SIZE - 1);
@@ -63,7 +78,12 @@ void get_dir_info(char* path, DIR_INFO** di) {
 
 		for (; i < fc; i++) {
 			FILE_INFO_LIST* fil = NULL;
+
 			fil = (FILE_INFO_LIST*) malloc(sizeof(FILE_INFO_LIST));
+			if (fil == NULL) {
+				perror("malloc");
+				return;
+                        }
 
 			strncpy(fil->value.name, fnl[i]->d_name, BUF_SIZE - 1);
 			strncpy(fil->value.type, "-", BUF_SIZE - 1);

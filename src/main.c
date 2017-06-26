@@ -32,7 +32,12 @@ int main(){
 				if (cd == rd) {
 					print_dir(cd, 2);
 					cd = ld;
-					chdir(cd->path);
+
+					if (chdir(cd->path) == -1) {
+						perror("chdir");
+						return 0;
+					}
+
 					print_dir(cd, 1);
 				}
 				break;
@@ -41,10 +46,32 @@ int main(){
 				if (cd == ld) {
                                         print_dir(cd, 2);
                                         cd = rd;
-					chdir(cd->path);
+
+					if (chdir(cd->path) == -1) {
+						perror("chdir");
+						return 0;
+					}
+
                                         print_dir(cd, 1);
                                 }
                                 break;
+
+			case KEY_TAB:
+				print_dir(cd, 2);
+
+				if (cd == ld)
+					cd = rd;
+				else
+					cd = ld;
+
+				if (chdir(cd->path) == -1) {
+					perror("chdir");
+					return 0;
+				}
+
+				print_dir(cd, 1);
+
+				break;
 
 			case KEY_HOME:
 				cd->current_file = cd->head_file;
@@ -58,7 +85,7 @@ int main(){
 
 				break;
 
-			case 10:
+			case KEY_ENTER:
 				if (!chdir(cd->current_file->value.name)) {
 					free_fil(&cd);
 					get_dir_info(".", &cd);
