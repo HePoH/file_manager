@@ -2,6 +2,9 @@
 #define CORE_H
 
 #define _DEFAULT_SOURCE
+#define _SVID_SOURCE
+#define _BSD_SOURCE
+
 #define BUF_SIZE 255
 
 #include <stdio.h>
@@ -9,6 +12,7 @@
 #include <string.h>
 
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
 
@@ -16,9 +20,7 @@
 
 typedef struct fi {
 	char name[BUF_SIZE];
-	char type[BUF_SIZE];
-	int size;
-	int mod_date;
+	struct stat fs;
 } FILE_INFO;
 
 typedef struct fil {
@@ -35,9 +37,6 @@ typedef struct di {
 	FILE_INFO_LIST* head_file;
 	FILE_INFO_LIST* current_file;
 	FILE_INFO_LIST* tail_file;
-
-	int widt, height;
-	int rows, cols;
 
 	WINDOW *p_wnd, *m_wnd;
 } DIR_INFO;

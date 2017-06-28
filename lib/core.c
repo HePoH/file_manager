@@ -61,11 +61,17 @@ void get_dir_info(char* path, DIR_INFO** di) {
 				return;
 			}
 
-			strncpy(head->value.name, fnl[i]->d_name, BUF_SIZE - 1);
-			strncpy(head->value.type, "-", BUF_SIZE - 1);
+			/*strncpy(head->value.type, "-", BUF_SIZE - 1);
 
 			head->value.size = 0;
-			head->value.mod_date = 0;
+			head->value.mod_date = 0;*/
+
+			strncpy(head->value.name, fnl[i]->d_name, BUF_SIZE - 1);
+
+			if (stat(fnl[i]->d_name, &head->value.fs) != 0) {
+				perror("stat");
+				exit(1);
+			}
 
 			head->next = NULL;
 			head->prev = NULL;
@@ -85,11 +91,18 @@ void get_dir_info(char* path, DIR_INFO** di) {
 				return;
                         }
 
-			strncpy(fil->value.name, fnl[i]->d_name, BUF_SIZE - 1);
+			/*strncpy(fil->value.name, fnl[i]->d_name, BUF_SIZE - 1);
 			strncpy(fil->value.type, "-", BUF_SIZE - 1);
 
 			fil->value.size = 0;
-			fil->value.mod_date = 0;
+			fil->value.mod_date = 0;*/
+
+			strncpy(fil->value.name, fnl[i]->d_name, BUF_SIZE - 1);
+
+			if (stat(fnl[i]->d_name, &fil->value.fs) != 0) {
+				perror("stat");
+				exit(1);
+			}
 
 			fil->next = NULL;
 			fil->prev = (*di)->current_file;

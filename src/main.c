@@ -3,6 +3,7 @@
 
 int main(){
 	int ch;
+	pid_t pid = 0;
 	DIR_INFO *ld = NULL, *rd = NULL, *cd = NULL;
 
 	init_core(&ld, &rd, &cd);
@@ -91,8 +92,27 @@ int main(){
 					get_dir_info(".", &cd);
 					print_dir(cd, 1);
 				}
-				else
-					perror("chdir");
+
+				if (S_ISREG(cd->current_file->value.fs.st_mode))
+					if (cd->current_file->value.fs.st_mode & S_IXUSR ||
+					    cd->current_file->value.fs.st_mode & S_IXGRP ||
+					    cd->current_file->value.fs.st_mode & S_IXOTH) {
+						close_graph();
+
+						pid = fork();
+						if (pid == 0) {
+							execl(cd->current_file->value.name, cd->current_file->value.name, (char *) 0);
+						}
+
+						wait(0);
+
+						init_graph();
+						init_workspace(&ld, &rd);
+
+						print_dir(ld, 1);
+						print_dir(rd, 2);
+					}
+
 				break;
 		}
 	}

@@ -55,12 +55,12 @@ void print_dir(DIR_INFO* di, int bg_c) {
 	while(p) {
 		if (p == di->current_file) {
 			wattron(di->m_wnd, COLOR_PAIR(bg_c));
-			wprintw(di->m_wnd, " %s \n", p->value.name);
+			wprintw(di->m_wnd, " %s %ld \n", p->value.name, p->value.fs.st_size);
 			wattroff(di->m_wnd, COLOR_PAIR(bg_c));
 		}
 		else {
 			wattron(di->m_wnd, COLOR_PAIR(3));
-			wprintw(di->m_wnd, " %s \n", p->value.name);
+			wprintw(di->m_wnd, " %s %ld \n", p->value.name, p->value.fs.st_size);
 			wattroff(di->m_wnd, COLOR_PAIR(3));
 		}
 
