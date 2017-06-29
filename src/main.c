@@ -13,6 +13,9 @@ int main(){
 	print_dir(ld, 1);
 	print_dir(rd, 2);
 
+	print_dir_path(cd);
+	print_dir_path(rd);
+
 	while((ch = getch()) != 'q') {
 		switch(ch) {
 			case KEY_UP:
@@ -34,7 +37,7 @@ int main(){
 					print_dir(cd, 2);
 					cd = ld;
 
-					if (chdir(cd->path) == -1) {
+					if (chdir(cd->dir_path) == -1) {
 						perror("chdir");
 						return 0;
 					}
@@ -48,7 +51,7 @@ int main(){
                                         print_dir(cd, 2);
                                         cd = rd;
 
-					if (chdir(cd->path) == -1) {
+					if (chdir(cd->dir_path) == -1) {
 						perror("chdir");
 						return 0;
 					}
@@ -65,7 +68,7 @@ int main(){
 				else
 					cd = ld;
 
-				if (chdir(cd->path) == -1) {
+				if (chdir(cd->dir_path) == -1) {
 					perror("chdir");
 					return 0;
 				}
@@ -87,21 +90,22 @@ int main(){
 				break;
 
 			case KEY_ENTER:
-				if (!chdir(cd->current_file->value.name)) {
+				if (!chdir(cd->current_file->file_name)) {
 					free_fil(&cd);
 					get_dir_info(".", &cd);
 					print_dir(cd, 1);
+					print_dir_path(cd);
 				}
 
-				if (S_ISREG(cd->current_file->value.fs.st_mode))
-					if (cd->current_file->value.fs.st_mode & S_IXUSR ||
-					    cd->current_file->value.fs.st_mode & S_IXGRP ||
-					    cd->current_file->value.fs.st_mode & S_IXOTH) {
+				if (S_ISREG(cd->current_file->file_stat.st_mode))
+					if (cd->current_file->file_stat.st_mode & S_IXUSR ||
+					    cd->current_file->file_stat.st_mode & S_IXGRP ||
+					    cd->current_file->file_stat.st_mode & S_IXOTH) {
 						close_graph();
 
 						pid = fork();
 						if (pid == 0) {
-							execl(cd->current_file->value.name, cd->current_file->value.name, (char *) 0);
+							execl(cd->current_file->file_name, cd->current_file->file_name, (char *) 0);
 						}
 
 						wait(0);
@@ -123,5 +127,5 @@ int main(){
 	free(rd);
 	cd = NULL;
 
-	return 0;
+	exit(EXIT_SUCCESS);
 }

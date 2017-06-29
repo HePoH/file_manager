@@ -4,7 +4,7 @@
 void init_graph() {
         if (initscr() == NULL) {
                 perror("initscr");
-                return;
+                exit(EXIT_FAILURE);
         }
 
         noecho();
@@ -23,55 +23,134 @@ void init_graph() {
 }
 
 void init_workspace(DIR_INFO** ld, DIR_INFO** rd){
-	(*ld)->p_wnd = newwin(rows, cols/2, 0 ,0);
+	/*
+		x - cols
+		y - rows
+	*/
+
+	(*ld)->p_wnd = newwin(rows, cols/2, 0, 0);
         box((*ld)->p_wnd, '|', '-');
-        (*ld)->m_wnd = derwin((*ld)->p_wnd, rows-2, cols/2-2, 1, 1);
+
+	(*ld)->fn_wnd = derwin((*ld)->p_wnd, rows-2, cols/4, 1, 2);
+	(*ld)->s_wnd = derwin((*ld)->p_wnd, rows-2, 9, 1, cols/2 - 31);
+	(*ld)->mt_wnd = derwin((*ld)->p_wnd, rows-2, 13, 1, cols/2 - 20);
+	(*ld)->pr_wnd = derwin((*ld)->p_wnd, rows-2, 4, 1, cols/2 - 5);
 
         (*rd)->p_wnd = newwin(rows, cols/2, 0, cols/2);
         box((*rd)->p_wnd, '|', '-');
-        (*rd)->m_wnd = derwin((*rd)->p_wnd, rows-2, cols/2-2, 1, 1);
+
+	(*rd)->fn_wnd = derwin((*rd)->p_wnd, rows-2, cols/4, 1, 2);
+	(*rd)->s_wnd = derwin((*rd)->p_wnd, rows-2, 9, 1, cols/2 - 31);
+	(*rd)->mt_wnd = derwin((*rd)->p_wnd, rows-2, 13, 1, cols/2 - 20);
+	(*rd)->pr_wnd = derwin((*rd)->p_wnd, rows-2, 4, 1, cols/2 - 5);
 
 	wrefresh((*ld)->p_wnd);
 	wrefresh((*rd)->p_wnd);
 }
 
-void print_dir(DIR_INFO* di, int bg_c) {
-	FILE_INFO_LIST* p = NULL;
-	p = di->head_file;
+void print_dir_path(DIR_INFO* di) {
+	mvwhline(di->p_wnd, 0, 1, '-', cols/2 - 2);
 
-	wclear(di->m_wnd);
-
-    	box(di->p_wnd, '|', '-');
 	wattron(di->p_wnd, A_BOLD);
 	wattron(di->p_wnd, COLOR_PAIR(4));
-	wmove(di->p_wnd, 0, cols / 4 - strlen(di->path) / 2 - 3);
-        wprintw(di->p_wnd, "[ %s ]", di->path);
+	wmove(di->p_wnd, 0, cols / 4 - strlen(di->dir_path) / 2 - 3);
+        wprintw(di->p_wnd, "[ %s ]", di->dir_path);
 	wattroff(di->p_wnd, COLOR_PAIR(4));
     	wattroff(di->p_wnd, A_BOLD);
 
-	wrefresh(di->p_wnd);
+	mvwvline(di->p_wnd, 1, cols/2 - 33, '|', rows-2);
+	mvwvline(di->p_wnd, 1, cols/2 - 22, '|', rows-2);
+	mvwvline(di->p_wnd, 1, cols/2 - 7, '|', rows-2);
 
-    	wattron(di->m_wnd, A_BOLD);
+	mvwhline(di->p_wnd, 2, 1, '-', cols/2 - 2);
+
+	wrefresh(di->p_wnd);
+}
+
+void print_dir(DIR_INFO* di, int bg_c) {
+	FILE_INFO_LIST* p = NULL;
+	struct tm* timeinfo = NULL;
+	char mt_buffer[BUF_SIZE];
+
+	p = di->head_file;
+
+	wclear(di->fn_wnd);
+	wclear(di->s_wnd);
+	wclear(di->mt_wnd);
+	wclear(di->pr_wnd);
+
+    	wattron(di->fn_wnd, A_BOLD);
+    	wattron(di->s_wnd, A_BOLD);
+    	wattron(di->mt_wnd, A_BOLD);
+    	wattron(di->pr_wnd, A_BOLD);
+
+	wattron(di->fn_wnd, COLOR_PAIR(3));
+	wattron(di->s_wnd, COLOR_PAIR(3));
+	wattron(di->mt_wnd, COLOR_PAIR(3));
+	wattron(di->pr_wnd, COLOR_PAIR(3));
+
+	wprintw(di->fn_wnd, "File name\n\n");
+	wprintw(di->s_wnd, "Size\n\n");
+	wprintw(di->mt_wnd, "Mod time\n\n");
+	wprintw(di->pr_wnd, "Prm\n\n");
+
+	wattroff(di->fn_wnd, COLOR_PAIR(3));
+	wattroff(di->s_wnd, COLOR_PAIR(3));
+	wattroff(di->mt_wnd, COLOR_PAIR(3));
+	wattroff(di->pr_wnd, COLOR_PAIR(3));
+
 	while(p) {
+		timeinfo = localtime(&p->file_stat.st_mtim.tv_sec);
+		strftime (mt_buffer, BUF_SIZE, "%b %e %R%n", timeinfo);
+
 		if (p == di->current_file) {
-			wattron(di->m_wnd, COLOR_PAIR(bg_c));
-			wprintw(di->m_wnd, " %s %ld \n", p->value.name, p->value.fs.st_size);
-			wattroff(di->m_wnd, COLOR_PAIR(bg_c));
+			wattron(di->fn_wnd, COLOR_PAIR(bg_c));
+			wattron(di->s_wnd, COLOR_PAIR(bg_c));
+			wattron(di->mt_wnd, COLOR_PAIR(bg_c));
+			wattron(di->pr_wnd, COLOR_PAIR(bg_c));
+
+			wprintw(di->fn_wnd, "%s\n", p->file_name);
+			wprintw(di->s_wnd, "%ld\n", p->file_stat.st_size);
+			wprintw(di->mt_wnd, "%s", mt_buffer);
+			wprintw(di->pr_wnd, "%o\n", p->file_stat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO));
+
+			wattroff(di->fn_wnd, COLOR_PAIR(bg_c));
+			wattroff(di->s_wnd, COLOR_PAIR(bg_c));
+			wattroff(di->mt_wnd, COLOR_PAIR(bg_c));
+			wattroff(di->pr_wnd, COLOR_PAIR(bg_c));
 		}
 		else {
-			wattron(di->m_wnd, COLOR_PAIR(3));
-			wprintw(di->m_wnd, " %s %ld \n", p->value.name, p->value.fs.st_size);
-			wattroff(di->m_wnd, COLOR_PAIR(3));
+			wattron(di->fn_wnd, COLOR_PAIR(3));
+			wattron(di->s_wnd, COLOR_PAIR(3));
+			wattron(di->mt_wnd, COLOR_PAIR(3));
+
+			wprintw(di->fn_wnd, "%s\n", p->file_name);
+			wprintw(di->s_wnd, "%ld\n", p->file_stat.st_size);
+			wprintw(di->mt_wnd, "%s", mt_buffer);
+			wprintw(di->pr_wnd, "%o\n", p->file_stat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO));
+
+			wattroff(di->fn_wnd, COLOR_PAIR(3));
+			wattroff(di->s_wnd, COLOR_PAIR(3));
+			wattroff(di->mt_wnd, COLOR_PAIR(3));
+			wattroff(di->pr_wnd, COLOR_PAIR(3));
 		}
 
 		p = p->next;
         }
 
-	wattroff(di->m_wnd, A_BOLD);
-        wprintw(di->m_wnd, "\n Count: %d\n", di->file_count);
-	wrefresh(di->m_wnd);
+	wattroff(di->fn_wnd, A_BOLD);
+	wattroff(di->s_wnd, A_BOLD);
+	wattroff(di->mt_wnd, A_BOLD);
+	wattroff(di->pr_wnd, A_BOLD);
 
-	return;
+        wprintw(di->fn_wnd, "\n Count: %d\n", di->file_count);
+
+	wrefresh(di->fn_wnd);
+	wrefresh(di->s_wnd);
+	wrefresh(di->mt_wnd);
+	wrefresh(di->pr_wnd);
+
+	print_dir_path(di);
 }
 
 void close_graph(){

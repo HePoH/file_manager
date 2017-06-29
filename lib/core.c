@@ -4,19 +4,19 @@ void init_core(DIR_INFO** ld, DIR_INFO** rd, DIR_INFO** cd) {
 	*ld = (DIR_INFO*) malloc(sizeof(DIR_INFO));
 	*rd = (DIR_INFO*) malloc(sizeof(DIR_INFO));
 
-	if (chdir(getenv("PWD")) == -1) {
-		perror("chdir");
-		return;
-	}
-
-	get_dir_info(getenv("PWD"), ld);
-
 	if (chdir(getenv("HOME")) == -1) {
 		perror("chdir");
-		return;
+		exit(EXIT_FAILURE);
 	}
 
 	get_dir_info(getenv("HOME"), rd);
+
+	if (chdir(getenv("PWD")) == -1) {
+		perror("chdir");
+		exit(EXIT_FAILURE);
+	}
+
+	get_dir_info(getenv("PWD"), ld);
 
 	*cd = *ld;
 }
@@ -47,8 +47,8 @@ void get_dir_info(char* path, DIR_INFO** di) {
 	else {
 		int i = 1;
 
-		if (getcwd((*di)->path, BUF_SIZE) == NULL)
-			strncpy((*di)->path, "-", BUF_SIZE - 1);
+		if (getcwd((*di)->dir_path, BUF_SIZE) == NULL)
+			strncpy((*di)->dir_path, "-", BUF_SIZE - 1);
 
 		(*di)->file_count = fc - 2;
 
@@ -58,17 +58,12 @@ void get_dir_info(char* path, DIR_INFO** di) {
 			head = malloc(sizeof(FILE_INFO_LIST));
 			if (head == NULL) {
 				perror("malloc");
-				return;
+				exit(EXIT_FAILURE);
 			}
 
-			/*strncpy(head->value.type, "-", BUF_SIZE - 1);
+			strncpy(head->file_name, fnl[i]->d_name, BUF_SIZE - 1);
 
-			head->value.size = 0;
-			head->value.mod_date = 0;*/
-
-			strncpy(head->value.name, fnl[i]->d_name, BUF_SIZE - 1);
-
-			if (stat(fnl[i]->d_name, &head->value.fs) != 0) {
+			if (stat(fnl[i]->d_name, &head->file_stat) != 0) {
 				perror("stat");
 				exit(1);
 			}
@@ -88,18 +83,12 @@ void get_dir_info(char* path, DIR_INFO** di) {
 			fil = (FILE_INFO_LIST*) malloc(sizeof(FILE_INFO_LIST));
 			if (fil == NULL) {
 				perror("malloc");
-				return;
+				exit(EXIT_FAILURE);
                         }
 
-			/*strncpy(fil->value.name, fnl[i]->d_name, BUF_SIZE - 1);
-			strncpy(fil->value.type, "-", BUF_SIZE - 1);
+			strncpy(fil->file_name, fnl[i]->d_name, BUF_SIZE - 1);
 
-			fil->value.size = 0;
-			fil->value.mod_date = 0;*/
-
-			strncpy(fil->value.name, fnl[i]->d_name, BUF_SIZE - 1);
-
-			if (stat(fnl[i]->d_name, &fil->value.fs) != 0) {
+			if (stat(fnl[i]->d_name, &fil->file_stat) != 0) {
 				perror("stat");
 				exit(1);
 			}

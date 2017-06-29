@@ -15,30 +15,28 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <time.h>
 
 #include <curses.h>
 
-typedef struct fi {
-	char name[BUF_SIZE];
-	struct stat fs;
-} FILE_INFO;
-
 typedef struct fil {
-	FILE_INFO value;
+	char file_name[BUF_SIZE];
+	struct stat file_stat;
 
 	struct fil *next;
 	struct fil *prev;
 } FILE_INFO_LIST;
 
 typedef struct di {
-	char path[BUF_SIZE];
+	char dir_path[BUF_SIZE];
 	int file_count;
 
 	FILE_INFO_LIST* head_file;
 	FILE_INFO_LIST* current_file;
 	FILE_INFO_LIST* tail_file;
 
-	WINDOW *p_wnd, *m_wnd;
+	WINDOW *p_wnd;
+	WINDOW *fn_wnd, *s_wnd, *mt_wnd, *pr_wnd;
 } DIR_INFO;
 
 
