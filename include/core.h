@@ -13,9 +13,13 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+
 #include <dirent.h>
 #include <unistd.h>
 #include <time.h>
+#include <pwd.h>
+
+#include <pthread.h>
 
 #include <curses.h>
 
@@ -36,12 +40,14 @@ typedef struct di {
 	FILE_INFO_LIST* tail_file;
 
 	WINDOW *p_wnd;
-	WINDOW *fn_wnd, *s_wnd, *mt_wnd, *pr_wnd;
+	WINDOW *fn_wnd, *ow_wnd, *s_wnd, *mt_wnd, *pr_wnd;
 } DIR_INFO;
 
 
 void init_core(DIR_INFO** ld, DIR_INFO** rd, DIR_INFO** cd);
 void free_fil(DIR_INFO** di);
 void get_dir_info(char* path, DIR_INFO** di);
+void* copy_file(void* arg);
+void* display_copy_status(void*);
 
 #endif

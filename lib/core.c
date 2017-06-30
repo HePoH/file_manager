@@ -65,7 +65,7 @@ void get_dir_info(char* path, DIR_INFO** di) {
 
 			if (stat(fnl[i]->d_name, &head->file_stat) != 0) {
 				perror("stat");
-				exit(1);
+				exit(EXIT_FAILURE);
 			}
 
 			head->next = NULL;

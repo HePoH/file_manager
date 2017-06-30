@@ -10,31 +10,31 @@ int main(){
 	init_graph();
 	init_workspace(&ld, &rd);
 
-	print_dir(ld, 1);
-	print_dir(rd, 2);
+	print_dir_static(cd);
+	print_dir_static(rd);
 
-	print_dir_path(cd);
-	print_dir_path(rd);
+	print_dir_dynamic(ld, 1);
+	print_dir_dynamic(rd, 2);
 
 	while((ch = getch()) != 'q') {
 		switch(ch) {
 			case KEY_UP:
 				if (cd->current_file != cd->head_file) {
 					cd->current_file = cd->current_file->prev;
-					print_dir(cd, 1);
+					print_dir_dynamic(cd, 1);
 				}
 				break;
 
 			case KEY_DOWN:
 				if (cd->current_file->next != NULL) {
 					cd->current_file = cd->current_file->next;
-					print_dir(cd, 1);
+					print_dir_dynamic(cd, 1);
 				}
 				break;
 
 			case KEY_LEFT:
 				if (cd == rd) {
-					print_dir(cd, 2);
+					print_dir_dynamic(cd, 2);
 					cd = ld;
 
 					if (chdir(cd->dir_path) == -1) {
@@ -42,13 +42,13 @@ int main(){
 						return 0;
 					}
 
-					print_dir(cd, 1);
+					print_dir_dynamic(cd, 1);
 				}
 				break;
 
 			case KEY_RIGHT:
 				if (cd == ld) {
-                                        print_dir(cd, 2);
+                                        print_dir_dynamic(cd, 2);
                                         cd = rd;
 
 					if (chdir(cd->dir_path) == -1) {
@@ -56,12 +56,12 @@ int main(){
 						return 0;
 					}
 
-                                        print_dir(cd, 1);
+                                        print_dir_dynamic(cd, 1);
                                 }
                                 break;
 
 			case KEY_TAB:
-				print_dir(cd, 2);
+				print_dir_dynamic(cd, 2);
 
 				if (cd == ld)
 					cd = rd;
@@ -73,19 +73,19 @@ int main(){
 					return 0;
 				}
 
-				print_dir(cd, 1);
+				print_dir_dynamic(cd, 1);
 
 				break;
 
 			case KEY_HOME:
 				cd->current_file = cd->head_file;
-                                print_dir(cd, 1);
+                                print_dir_dynamic(cd, 1);
 
                                 break;
 
                         case KEY_END:
 				cd->current_file = cd->tail_file;
-                                print_dir(cd, 1);
+                                print_dir_dynamic(cd, 1);
 
 				break;
 
@@ -93,8 +93,9 @@ int main(){
 				if (!chdir(cd->current_file->file_name)) {
 					free_fil(&cd);
 					get_dir_info(".", &cd);
-					print_dir(cd, 1);
-					print_dir_path(cd);
+
+					print_dir_static(cd);
+					print_dir_dynamic(cd, 1);
 				}
 
 				if (S_ISREG(cd->current_file->file_stat.st_mode))
@@ -113,8 +114,8 @@ int main(){
 						init_graph();
 						init_workspace(&ld, &rd);
 
-						print_dir(ld, 1);
-						print_dir(rd, 2);
+						print_dir_dynamic(ld, 1);
+						print_dir_dynamic(rd, 2);
 					}
 
 				break;
