@@ -119,3 +119,57 @@ char* trim(char* spaced) {
 
     return strndup(spaced, length);
 }
+
+void* copy_file(void* args) {
+	int fd_src = 0, fd_dst = 0;
+	char buf[COPY_BUF_SIZE];
+	ssize_t nbyte = 0;
+	COPY_FILE_INFO* cfi = NULL;
+
+	cfi = (COPY_FILE_INFO*) args;
+
+	fd_src = open(cfi->fn_src, O_RDONLY);
+	if (fd_src == -1) {
+		perror("open");
+		pthread_exit(EXIT_FAILURE);
+	}
+
+	if (stat(cfi->fn_src, &cfi->fs_src) != 0) {
+		perror("stat");
+		pthread_exit(EXIT_FAILURE);
+	}
+
+	fd_dst = open(cfi->fn_dst, O_CREAT | O_WRONLY | O_TRUNC, cfi->fs_src.st_mode);
+	if (fd_dst == -1) {
+		perror("open");
+		pthread_exit(EXIT_FAILURE);
+	}
+
+	while((nbyte = read(fd_src, buf, COPY_BUF_SIZE)) > 0)
+		if (write(fd_dst, buf, nbyte) != nbyte) {
+			perror("write");
+			pthread_exit(EXIT_FAILURE);
+		}
+
+	if (nbyte == -1) {
+		perror("write");
+		pthread_exit(EXIT_FAILURE);
+	}
+
+	close(fd_src);
+	close(fd_dst);
+
+	pthread_exit(EXIT_SUCCESS);
+}
+
+char* get_file_path(char* file_name) {
+        char* file_path = NULL, cur_dir[BUF_SIZE];
+
+        file_path = malloc(BUF_SIZE * sizeof(char));
+
+        getcwd(cur_dir, BUF_SIZE);
+        snprintf(file_path, BUF_SIZE, "%s/%s", cur_dir, file_name);
+
+        return file_path;
+}
+

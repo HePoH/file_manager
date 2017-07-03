@@ -191,35 +191,43 @@ void print_dir_dynamic(DIR_INFO* di, int bg_c) {
 	wrefresh(di->fn_wnd);
 }
 
-void copy_action_btn_ok(void) {
+void copy_action_btn_ok(void* args) {
         int i;
+	COPY_FILE_INFO* cfi;
+
+	cfi = (COPY_FILE_INFO*) args;
 
         mvprintw(LINES-2, 1, "[*] OK: ");
 
-        for (i = 0; i < popup_form->maxfield; i++) {
+        /*for (i = 0; i < popup_form->maxfield; i++) {
                 printw("%s", trim(field_buffer(popup_fields[i], 0)));
 
                 if (field_opts(popup_fields[i]) & O_ACTIVE)
                         printw("\t");
-        }
+        }*/
+
+	strncpy(cfi->fn_src, trim(field_buffer(popup_fields[1], 0)), BUF_SIZE - 1);
+	strncpy(cfi->fn_dst, trim(field_buffer(popup_fields[3], 0)), BUF_SIZE - 1);
 
         refresh();
 }
 
-void copy_action_btn_quit(void) {
+void copy_action_btn_quit(void* args) {
         mvprintw(LINES-2, 1, "[*] QUIT: F1 to quit");
         refresh();
 }
 
-
-void display_copy_form() {
-	char* requests[] = { "From:", "/home/2017/d_medvedev/work/file_manager/file.bin", "To:", "/home/2017/d_medvedev/work/file_manager.bin" };
+void display_copy_form(COPY_FILE_INFO* cfi) {
+	char* requests[4] = { "From:", NULL, "To:", NULL };
 	int ch;
 	struct actions act_ok, act_quit;
 
-	act_ok.key = "OK";
+	requests[1] = cfi->fn_src;
+	requests[3] = cfi->fn_dst;
+
+	act_ok.key = " OK";
 	act_ok.func = copy_action_btn_ok;
-	act_quit.key = "QUIT";
+	act_quit.key = " QUIT";
 	act_quit.func = copy_action_btn_quit;
 
 	button_actions = malloc(sizeof(struct action *) * 3);
@@ -227,13 +235,13 @@ void display_copy_form() {
 	button_actions[1] = &act_quit;
 	button_actions[2] = NULL;
 
-	popup_new(15, COLS/2, (LINES-13) / 2, COLS/4, 2, requests, 4, "[ Copying ]");
+	curs_set(1);
+	popup_new(15, COLS/2, (LINES-13)/2, COLS/4, 2, requests, 4, "[ Copying ]");
 
 	refresh();
 	popup_refresh();
 
-	while((ch = getch()) != KEY_F(1))
-		popup_driver(ch);
+	popup_driver(cfi);
 
 	/*popup_delete();
 

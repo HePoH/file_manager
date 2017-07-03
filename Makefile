@@ -6,7 +6,7 @@ vpath %.o src:lib
 
 CC = gcc
 CFLAGS = -std=c99 -O2 -Wall -pedantic -ansi
-LDFLAGS = -lncurses -lform -lmenu
+LDFLAGS = -lpthread -lncurses -lform -lmenu
 
 SUBDIRS = lib src
 OBJECTS = core.o graph.o popup.o main.o

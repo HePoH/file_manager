@@ -6,6 +6,7 @@
 #define _BSD_SOURCE
 
 #define BUF_SIZE 255
+#define COPY_BUF_SIZE 1024
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,6 +22,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <pwd.h>
+#include <fcntl.h>
 
 #include <pthread.h>
 
@@ -46,6 +48,15 @@ typedef struct di {
 	WINDOW *fn_wnd, *ow_wnd, *s_wnd, *mt_wnd, *pr_wnd;
 } DIR_INFO;
 
+typedef struct cfi {
+	char fn_src[BUF_SIZE];
+	char fn_dst[BUF_SIZE];
+
+	struct stat fs_src;
+	struct stat fs_dst;
+
+	WINDOW *s_wnd;
+} COPY_FILE_INFO;
 
 void init_core(DIR_INFO** ld, DIR_INFO** rd, DIR_INFO** cd);
 void free_fil(DIR_INFO** di);

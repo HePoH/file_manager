@@ -116,7 +116,7 @@ void popup_delete(void) {
 	button_actions = NULL;
 }
 
-static void driver_buttons(ITEM *item) {
+static void driver_buttons(ITEM *item, COPY_FILE_INFO* cfi) {
 	const char *name = item_name(item);
 	int i = 0;
 
@@ -124,7 +124,7 @@ static void driver_buttons(ITEM *item) {
 		i++;
 
 	if (button_actions[i])
-		button_actions[i]->func();
+		button_actions[i]->func(cfi);
 }
 
 static void switch_to_buttons(void) {
@@ -136,59 +136,63 @@ static void switch_to_buttons(void) {
 	set_menu_fore(popup_menu, A_REVERSE);
 }
 
-void popup_driver(int ch) {
-	switch (ch) {
-		case KEY_DOWN:
-			if (is_on_button)
+void popup_driver(COPY_FILE_INFO* cfi) {
+	int ch = 0;
+
+	while((ch = getch()) != KEY_F(1)) {
+		switch (ch) {
+			case KEY_DOWN:
+				if (is_on_button)
+					break;
+
+				if (popup_form->current == popup_fields[popup_form->maxfield-1])
+					switch_to_buttons();
+				else
+					form_driver(popup_form, REQ_NEXT_FIELD);
 				break;
 
-			if (popup_form->current == popup_fields[popup_form->maxfield-1])
-				switch_to_buttons();
-			else
-				form_driver(popup_form, REQ_NEXT_FIELD);
-			break;
+			case KEY_UP:
+				if (is_on_button) {
+					is_on_button = false;
+					set_menu_fore(popup_menu, A_NORMAL);
+				} else
+					form_driver(popup_form, REQ_PREV_FIELD);
+				break;
 
-		case KEY_UP:
-			if (is_on_button) {
-				is_on_button = false;
-				set_menu_fore(popup_menu, A_NORMAL);
-			} else
-				form_driver(popup_form, REQ_PREV_FIELD);
-			break;
+			case KEY_LEFT:
+				if (is_on_button)
+					menu_driver(popup_menu, REQ_LEFT_ITEM);
+				else
+					form_driver(popup_form, REQ_PREV_CHAR);
+				break;
 
-		case KEY_LEFT:
-			if (is_on_button)
-				menu_driver(popup_menu, REQ_LEFT_ITEM);
-			else
-				form_driver(popup_form, REQ_PREV_CHAR);
-			break;
+			case KEY_RIGHT:
+				if (is_on_button)
+					menu_driver(popup_menu, REQ_RIGHT_ITEM);
+				else
+					form_driver(popup_form, REQ_NEXT_CHAR);
+				break;
 
-		case KEY_RIGHT:
-			if (is_on_button)
-				menu_driver(popup_menu, REQ_RIGHT_ITEM);
-			else
-				form_driver(popup_form, REQ_NEXT_CHAR);
-			break;
+			case KEY_ENTER:
+				if (!is_on_button)
+					switch_to_buttons();
+				else {
+					driver_buttons(current_item(popup_menu), cfi);
+					return;
+				}
+				break;
 
-		case KEY_ENTER:
-			if (!is_on_button)
-				switch_to_buttons();
-			else
-				driver_buttons(current_item(popup_menu));
-			break;
+			case KEY_BACKSPACE:
+				form_driver(popup_form, REQ_DEL_PREV);
 
-		case KEY_BACKSPACE:
-			form_driver(popup_form, REQ_DEL_PREV);
+				break;
 
-			break;
-
-		default:
-			if (!is_on_button)
-				form_driver(popup_form, ch);
+			default:
+				if (!is_on_button)
+					form_driver(popup_form, ch);
 
 			break;
-
-	}
+		}
 
 	if (is_on_button)
 		pos_menu_cursor(popup_menu);
@@ -196,6 +200,8 @@ void popup_driver(int ch) {
 		pos_form_cursor(popup_form);
 
 	wrefresh(win_body);
+
+	}
 }
 
 void popup_refresh(void) {

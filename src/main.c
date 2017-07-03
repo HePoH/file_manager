@@ -3,8 +3,9 @@
 #include "../include/popup.h"
 
 int main(){
-	int ch;
+	int ch = 0;
 	pid_t pid = 0;
+	pthread_t tid = 0;
 	DIR_INFO *ld = NULL, *rd = NULL, *cd = NULL;
 
 	init_core(&ld, &rd, &cd);
@@ -123,11 +124,25 @@ int main(){
 
 			case KEY_F(5):
 				if (S_ISREG(cd->current_file->file_stat.st_mode)) {
-					clear();
+					char* file_path = NULL, cur_dir[BUF_SIZE];
+					COPY_FILE_INFO* cfi = NULL;
+
+					cfi = malloc(sizeof(COPY_FILE_INFO));
+					if (cfi == NULL) {
+						perror("malloc");
+						exit(EXIT_FAILURE);
+					}
+
+					file_path = get_file_path(cd->current_file->file_name);
+					getcwd(cur_dir, BUF_SIZE);
+
+					strncpy(cfi->fn_src, file_path, BUF_SIZE - 1);
+					strncpy(cfi->fn_dst, cur_dir, BUF_SIZE - 1);
+
+					display_copy_form(cfi);
+
 					wclear(ld->p_wnd);
 					wclear(rd->p_wnd);
-
-					display_copy_form();
 
 					box(ld->p_wnd, 0, 0);
 					box(rd->p_wnd, 0, 0);
@@ -147,6 +162,18 @@ int main(){
 					else {
 						print_dir_dynamic(ld, 2);
 						print_dir_dynamic(rd, 1);
+					}
+
+					curs_set(0);
+
+					perror(cfi->fn_src);
+					perror("\n\n\n");
+					perror(cfi->fn_dst);
+
+					int ret = pthread_create(&tid, NULL, copy_file, (void*)cfi);
+					if(ret) {
+						perror("pthread_create");
+						exit(EXIT_FAILURE);
 					}
 				}
 
