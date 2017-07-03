@@ -1,5 +1,6 @@
 #include "../include/core.h"
 #include "../include/graph.h"
+#include "../include/popup.h"
 
 int main(){
 	int ch;
@@ -117,6 +118,37 @@ int main(){
 						print_dir_dynamic(ld, 1);
 						print_dir_dynamic(rd, 2);
 					}
+
+				break;
+
+			case KEY_F(5):
+				if (S_ISREG(cd->current_file->file_stat.st_mode)) {
+					clear();
+					wclear(ld->p_wnd);
+					wclear(rd->p_wnd);
+
+					display_copy_form();
+
+					box(ld->p_wnd, 0, 0);
+					box(rd->p_wnd, 0, 0);
+
+					wnoutrefresh(ld->p_wnd);
+					wnoutrefresh(rd->p_wnd);
+
+					doupdate();
+
+					print_dir_static(ld);
+					print_dir_static(rd);
+
+					if (cd == ld) {
+						print_dir_dynamic(ld, 1);
+						print_dir_dynamic(rd, 2);
+					}
+					else {
+						print_dir_dynamic(ld, 2);
+						print_dir_dynamic(rd, 1);
+					}
+				}
 
 				break;
 		}

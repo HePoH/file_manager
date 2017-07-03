@@ -10,9 +10,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
+#include <ctype.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 #include <dirent.h>
 #include <unistd.h>
@@ -49,5 +52,6 @@ void free_fil(DIR_INFO** di);
 void get_dir_info(char* path, DIR_INFO** di);
 void* copy_file(void* arg);
 void* display_copy_status(void*);
+char* trim(char* spaced);
 
 #endif

@@ -6,10 +6,10 @@ vpath %.o src:lib
 
 CC = gcc
 CFLAGS = -std=c99 -O2 -Wall -pedantic -ansi
-LDFLAGS = -lncurses -lform
+LDFLAGS = -lncurses -lform -lmenu
 
 SUBDIRS = lib src
-OBJECTS = core.o graph.o main.o
+OBJECTS = core.o graph.o popup.o main.o
 
 all: prepare $(OBJECTS)
 		#clear

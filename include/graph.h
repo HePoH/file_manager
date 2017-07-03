@@ -2,12 +2,13 @@
 #define GRAPH_H
 
 #include <curses.h>
+#include <form.h>
+#include <menu.h>
+
 #include "core.h"
 
 #define KEY_TAB 9
 #define KEY_ENTER 10
-
-int rows, cols;
 
 void init_graph();
 void init_workspace(DIR_INFO** ld, DIR_INFO** rd);

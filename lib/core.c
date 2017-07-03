@@ -108,3 +108,14 @@ void get_dir_info(char* path, DIR_INFO** di) {
 		free(fnl);
 	}
 }
+
+char* trim(char* spaced) {
+    int length = strlen(spaced);
+
+    while (isspace(spaced[length - 1]))
+        --length;
+    while (*spaced && isspace(*spaced))
+        ++spaced, --length;
+
+    return strndup(spaced, length);
+}
