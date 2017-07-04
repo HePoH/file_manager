@@ -61,6 +61,7 @@ typedef struct cfi {
 void init_core(DIR_INFO** ld, DIR_INFO** rd, DIR_INFO** cd);
 void free_fil(DIR_INFO** di);
 void get_dir_info(char* path, DIR_INFO** di);
+char* get_file_path(char* file_name);
 void* copy_file(void* arg);
 void* display_copy_status(void*);
 char* trim(char* spaced);

@@ -192,9 +192,7 @@ void print_dir_dynamic(DIR_INFO* di, int bg_c) {
 }
 
 void copy_action_btn_ok(void* args) {
-        int i;
 	COPY_FILE_INFO* cfi;
-
 	cfi = (COPY_FILE_INFO*) args;
 
         mvprintw(LINES-2, 1, "[*] OK: ");
@@ -219,7 +217,6 @@ void copy_action_btn_quit(void* args) {
 
 void display_copy_form(COPY_FILE_INFO* cfi) {
 	char* requests[4] = { "From:", NULL, "To:", NULL };
-	int ch;
 	struct actions act_ok, act_quit;
 
 	requests[1] = cfi->fn_src;
@@ -244,7 +241,6 @@ void display_copy_form(COPY_FILE_INFO* cfi) {
 	popup_driver(cfi);
 
 	/*popup_delete();
-
 	free(button_actions[0]);
 	free(button_actions[1]);
 	free(button_actions);*/

@@ -3,7 +3,7 @@
 #include "../include/popup.h"
 
 int main(){
-	int ch = 0;
+	int ch = 0, ret = 0;
 	pid_t pid = 0;
 	pthread_t tid = 0;
 	DIR_INFO *ld = NULL, *rd = NULL, *cd = NULL;
@@ -166,15 +166,11 @@ int main(){
 
 					curs_set(0);
 
-					perror(cfi->fn_src);
-					perror("\n\n\n");
-					perror(cfi->fn_dst);
-
-					int ret = pthread_create(&tid, NULL, copy_file, (void*)cfi);
+					/*ret = pthread_create(&tid, NULL, copy_file, (void*)cfi);
 					if(ret) {
 						perror("pthread_create");
 						exit(EXIT_FAILURE);
-					}
+					}*/
 				}
 
 				break;

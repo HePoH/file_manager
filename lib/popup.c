@@ -15,10 +15,11 @@ extern struct actions** button_actions;
 
 void popup_new(int rows, int cols, int posy, int posx, int nb_buttons, char** requests, int nb_fields, char* title) {
 	WINDOW *inner;
-	int i, cury = 0, curx = 1, tmp;
+	int i = 0, cury = 0, curx = 1, tmp = 0;
 
 	win_body = newwin(rows, cols, posy, posx);
 	assert(win_body != NULL);
+	wattron(win_body, A_BOLD);
 	box(win_body, 0, 0);
 
 	mvwprintw(win_body, 0, cols/2 - strlen(title)/2, title);
@@ -26,9 +27,15 @@ void popup_new(int rows, int cols, int posy, int posx, int nb_buttons, char** re
 	popup_items = malloc(sizeof(ITEM *) * (nb_buttons + 1));
 	assert(popup_items);
 
+	init_pair(10, COLOR_WHITE, COLOR_WHITE);
+
 	for (i = 0; i < nb_buttons; i++) {
 		popup_items[i] = new_item(button_actions[i]->key, "");
 		assert(popup_items[i] != NULL);
+
+		set_menu_fore(popup_items[i], A_BOLD | COLOR_PAIR(10));
+		set_menu_back(popup_items[i], A_BOLD | COLOR_PAIR(10));
+
 	}
 
 	popup_items[i] = NULL;
@@ -36,6 +43,7 @@ void popup_new(int rows, int cols, int posy, int posx, int nb_buttons, char** re
 
 	win_menu = derwin(win_body, 3, cols-2, rows-4, 1);
 	assert(popup_menu != NULL && win_menu != NULL);
+	wattron(win_menu, A_BOLD);
 	box(win_menu, 0, 0);
 
 	set_menu_win(popup_menu, win_menu);
@@ -45,6 +53,7 @@ void popup_new(int rows, int cols, int posy, int posx, int nb_buttons, char** re
 
 	inner = derwin(win_menu, 1, tmp, 1, (cols-3-tmp)/2);
 	assert(inner != NULL);
+	wattron(inner, A_BOLD);
 
 	set_menu_sub(popup_menu, inner);
 	set_menu_mark(popup_menu, "");
@@ -56,6 +65,8 @@ void popup_new(int rows, int cols, int posy, int posx, int nb_buttons, char** re
 		if (i % 2 == 1) {
 			popup_fields[i] = new_field(1, cols - 6, cury, curx, 0, 0);
 			assert(popup_fields[i] != NULL);
+			set_field_fore(popup_fields[i], A_BOLD);
+			set_field_back(popup_fields[i], A_BOLD);
 			set_field_buffer(popup_fields[i], 0, requests[i]);
 
 			field_opts_on(popup_fields[i], O_ACTIVE);
@@ -65,7 +76,9 @@ void popup_new(int rows, int cols, int posy, int posx, int nb_buttons, char** re
 		else {
 			popup_fields[i] = new_field(1, strlen(requests[i]), cury, curx, 0, 0);
                 	assert(popup_fields[i] != NULL);
-                	set_field_buffer(popup_fields[i], 0, requests[i]);
+            		set_field_fore(popup_fields[i], A_BOLD);
+            		set_field_back(popup_fields[i], A_BOLD);
+			set_field_buffer(popup_fields[i], 0, requests[i]);
 
 			field_opts_off(popup_fields[i], O_ACTIVE);
 			field_opts_off(popup_fields[i], O_EDIT);
@@ -79,12 +92,14 @@ void popup_new(int rows, int cols, int posy, int posx, int nb_buttons, char** re
 	assert(popup_form != NULL);
 
 	win_form = derwin(win_body, rows-5, cols-2, 1, 1);
+	wattron(win_form, A_BOLD);
 	box(win_form, 0, 0);
 	assert(popup_form != NULL && win_form != NULL);
 
 	set_form_win(popup_form, win_form);
 	inner = derwin(win_form, popup_form->rows+1, popup_form->cols+1, 1, 1);
 	assert(inner != NULL);
+	wattron(inner, A_BOLD);
 	set_form_sub(popup_form, inner);
 
 	assert(post_form(popup_form) == E_OK);
@@ -94,7 +109,7 @@ void popup_new(int rows, int cols, int posy, int posx, int nb_buttons, char** re
 }
 
 void popup_delete(void) {
-	int i;
+	int i = 0;
 
 	unpost_form(popup_form);
 	unpost_menu(popup_menu);
@@ -109,9 +124,11 @@ void popup_delete(void) {
 
 	free_menu(popup_menu);
 	free_form(popup_form);
+
 	delwin(win_form);
 	delwin(win_menu);
 	delwin(win_body);
+
 	win_body = NULL;
 	button_actions = NULL;
 }
