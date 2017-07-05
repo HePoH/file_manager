@@ -5,7 +5,7 @@
 int main(){
 	int ch = 0, ret = 0;
 	pid_t pid = 0;
-	pthread_t tid = 0;
+	pthread_t ctid = 0, sctid = 0;
 	DIR_INFO *ld = NULL, *rd = NULL, *cd = NULL;
 
 	init_core(&ld, &rd, &cd);
@@ -140,6 +140,24 @@ int main(){
 					strncpy(cfi->fn_dst, cur_dir, BUF_SIZE - 1);
 
 					display_copy_form(cfi);
+					curs_set(0);
+
+					ret = pthread_create(&ctid, NULL, copy_file, (void*)cfi);
+					if(ret) {
+						perror("pthread_create");
+						exit(EXIT_FAILURE);
+					}
+
+					usleep(1000);
+
+					ret = pthread_create(&sctid, NULL, display_copy_status, (void*)cfi);
+					if(ret) {
+						perror("pthread_create");
+						exit(EXIT_FAILURE);
+					}
+
+					pthread_join(ctid, NULL);
+					pthread_join(sctid, NULL);
 
 					wclear(ld->p_wnd);
 					wclear(rd->p_wnd);
@@ -164,13 +182,6 @@ int main(){
 						print_dir_dynamic(rd, 1);
 					}
 
-					curs_set(0);
-
-					/*ret = pthread_create(&tid, NULL, copy_file, (void*)cfi);
-					if(ret) {
-						perror("pthread_create");
-						exit(EXIT_FAILURE);
-					}*/
 				}
 
 				break;

@@ -195,9 +195,9 @@ void copy_action_btn_ok(void* args) {
 	COPY_FILE_INFO* cfi;
 	cfi = (COPY_FILE_INFO*) args;
 
-        mvprintw(LINES-2, 1, "[*] OK: ");
+        /*mvprintw(LINES-2, 1, "[*] OK: ");
 
-        /*for (i = 0; i < popup_form->maxfield; i++) {
+        for (i = 0; i < popup_form->maxfield; i++) {
                 printw("%s", trim(field_buffer(popup_fields[i], 0)));
 
                 if (field_opts(popup_fields[i]) & O_ACTIVE)
@@ -210,7 +210,7 @@ void copy_action_btn_ok(void* args) {
         refresh();
 }
 
-void copy_action_btn_quit(void* args) {
+void copy_action_btn_cancel(void* args) {
         mvprintw(LINES-2, 1, "[*] QUIT: F1 to quit");
         refresh();
 }
@@ -224,13 +224,16 @@ void display_copy_form(COPY_FILE_INFO* cfi) {
 
 	act_ok.key = " OK";
 	act_ok.func = copy_action_btn_ok;
-	act_quit.key = " QUIT";
-	act_quit.func = copy_action_btn_quit;
+	act_quit.key = " CANCEL";
+	act_quit.func = copy_action_btn_cancel;
 
 	button_actions = malloc(sizeof(struct action *) * 3);
 	button_actions[0] = &act_ok;
 	button_actions[1] = &act_quit;
 	button_actions[2] = NULL;
+
+	cfi->rows = 15;
+	cfi->cols = COLS/2;
 
 	curs_set(1);
 	popup_new(15, COLS/2, (LINES-13)/2, COLS/4, 2, requests, 4, "[ Copying ]");

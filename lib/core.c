@@ -123,7 +123,7 @@ char* trim(char* spaced) {
 void* copy_file(void* args) {
 	int fd_src = 0, fd_dst = 0;
 	char buf[COPY_BUF_SIZE];
-	ssize_t nbyte = 0;
+	ssize_t nbytes = 0;
 	COPY_FILE_INFO* cfi = NULL;
 
 	cfi = (COPY_FILE_INFO*) args;
@@ -145,13 +145,17 @@ void* copy_file(void* args) {
 		pthread_exit(EXIT_FAILURE);
 	}
 
-	while((nbyte = read(fd_src, buf, COPY_BUF_SIZE)) > 0)
-		if (write(fd_dst, buf, nbyte) != nbyte) {
+	cfi->cur_size = 0;
+	while((nbytes = read(fd_src, buf, COPY_BUF_SIZE)) > 0) {
+		if (write(fd_dst, buf, nbytes) != nbytes) {
 			perror("write");
 			pthread_exit(EXIT_FAILURE);
 		}
 
-	if (nbyte == -1) {
+		cfi->cur_size += nbytes;
+	}
+
+	if (nbytes == -1) {
 		perror("write");
 		pthread_exit(EXIT_FAILURE);
 	}
@@ -162,8 +166,32 @@ void* copy_file(void* args) {
 	pthread_exit(EXIT_SUCCESS);
 }
 
+void* display_copy_status(void* args) {
+	int st_bl = 0, st_bl_c = 0, stat = 0;
+	COPY_FILE_INFO* cfi = NULL;
+
+	cfi = (COPY_FILE_INFO*) args;
+	st_bl = cfi->cols-8;
+	st_bl_c = cfi->fs_src.st_size / st_bl;
+
+	wclear(cfi->s_wnd);
+	box(cfi->s_wnd, 0, 0);
+
+	mvwprintw(cfi->s_wnd, 1, 2, "[");
+	mvwprintw(cfi->s_wnd, 1, cfi->cols-5, "]");
+	wrefresh(cfi->s_wnd);
+
+	while(cfi->cur_size < cfi->fs_src.st_size ) {
+		stat = cfi->cur_size / st_bl_c + 3;
+		mvwprintw(cfi->s_wnd, 1, stat, "#");
+		wrefresh(cfi->s_wnd);
+	}
+
+	pthread_exit(EXIT_SUCCESS);
+}
+
 char* get_file_path(char* file_name) {
-        char* file_path = NULL, cur_dir[BUF_SIZE];
+	char* file_path = NULL, cur_dir[BUF_SIZE];
 
         file_path = malloc(BUF_SIZE * sizeof(char));
 
@@ -172,4 +200,3 @@ char* get_file_path(char* file_name) {
 
         return file_path;
 }
-

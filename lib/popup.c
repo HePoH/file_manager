@@ -32,10 +32,6 @@ void popup_new(int rows, int cols, int posy, int posx, int nb_buttons, char** re
 	for (i = 0; i < nb_buttons; i++) {
 		popup_items[i] = new_item(button_actions[i]->key, "");
 		assert(popup_items[i] != NULL);
-
-		set_menu_fore(popup_items[i], A_BOLD | COLOR_PAIR(10));
-		set_menu_back(popup_items[i], A_BOLD | COLOR_PAIR(10));
-
 	}
 
 	popup_items[i] = NULL;
@@ -156,6 +152,7 @@ static void switch_to_buttons(void) {
 void popup_driver(COPY_FILE_INFO* cfi) {
 	int ch = 0;
 
+	cfi->s_wnd = win_menu;
 	while((ch = getch()) != KEY_F(1)) {
 		switch (ch) {
 			case KEY_DOWN:

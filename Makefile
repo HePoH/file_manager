@@ -5,7 +5,7 @@ vpath %.h include
 vpath %.o src:lib
 
 CC = gcc
-CFLAGS = -std=c99 -O2 -Wall -pedantic -ansi
+CFLAGS = -std=c99 -O2 -Wall -pedantic -ansi -g
 LDFLAGS = -lpthread -lncurses -lform -lmenu
 
 SUBDIRS = lib src

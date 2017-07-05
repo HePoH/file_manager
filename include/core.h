@@ -52,18 +52,20 @@ typedef struct cfi {
 	char fn_src[BUF_SIZE];
 	char fn_dst[BUF_SIZE];
 
+	int cur_size;
 	struct stat fs_src;
 	struct stat fs_dst;
 
 	WINDOW *s_wnd;
+	int cols, rows;
 } COPY_FILE_INFO;
 
 void init_core(DIR_INFO** ld, DIR_INFO** rd, DIR_INFO** cd);
 void free_fil(DIR_INFO** di);
 void get_dir_info(char* path, DIR_INFO** di);
 char* get_file_path(char* file_name);
-void* copy_file(void* arg);
-void* display_copy_status(void*);
+void* copy_file(void* args);
+void* display_copy_status(void* args);
 char* trim(char* spaced);
 
 #endif
