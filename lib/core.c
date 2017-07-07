@@ -167,25 +167,30 @@ void* copy_file(void* args) {
 }
 
 void* display_copy_status(void* args) {
-	int st_bl = 0, st_bl_c = 0, stat = 0;
+	int st_bl = 0, st_bl_c = 0, stat = 0, pr = 0;
 	COPY_FILE_INFO* cfi = NULL;
 
 	cfi = (COPY_FILE_INFO*) args;
-	st_bl = cfi->cols-8;
+	st_bl = cfi->cols-12;
 	st_bl_c = cfi->fs_src.st_size / st_bl;
 
 	wclear(cfi->s_wnd);
 	box(cfi->s_wnd, 0, 0);
 
 	mvwprintw(cfi->s_wnd, 1, 2, "[");
-	mvwprintw(cfi->s_wnd, 1, cfi->cols-5, "]");
+	mvwprintw(cfi->s_wnd, 1, cfi->cols-9, "]");
 	wrefresh(cfi->s_wnd);
 
 	while(cfi->cur_size < cfi->fs_src.st_size ) {
 		stat = cfi->cur_size / st_bl_c + 3;
+		pr = ((double)cfi->cur_size/(double)cfi->fs_src.st_size)*100;
 		mvwprintw(cfi->s_wnd, 1, stat, "#");
+		mvwprintw(cfi->s_wnd, 1, cfi->cols-7, "%d%%", pr);
 		wrefresh(cfi->s_wnd);
 	}
+
+	mvwprintw(cfi->s_wnd, 1, cfi->cols-7, "100%%");
+	wrefresh(cfi->s_wnd);
 
 	pthread_exit(EXIT_SUCCESS);
 }

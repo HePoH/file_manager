@@ -14,8 +14,8 @@ void init_graph();
 void init_workspace(DIR_INFO** ld, DIR_INFO** rd);
 void print_dir_static(DIR_INFO* di);
 void print_dir_dynamic(DIR_INFO* di, int bg_c);
-void display_copy_form();
-void* display_copy_status(void*);
+int display_copy_form();
+int display_del_form(char* del_file);
 void close_graph();
 
 #endif

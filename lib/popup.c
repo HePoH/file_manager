@@ -129,7 +129,7 @@ void popup_delete(void) {
 	button_actions = NULL;
 }
 
-static void driver_buttons(ITEM *item, COPY_FILE_INFO* cfi) {
+static int driver_buttons(ITEM *item, void* args) {
 	const char *name = item_name(item);
 	int i = 0;
 
@@ -137,7 +137,7 @@ static void driver_buttons(ITEM *item, COPY_FILE_INFO* cfi) {
 		i++;
 
 	if (button_actions[i])
-		button_actions[i]->func(cfi);
+		return (button_actions[i]->func(args));
 }
 
 static void switch_to_buttons(void) {
@@ -149,11 +149,15 @@ static void switch_to_buttons(void) {
 	set_menu_fore(popup_menu, A_REVERSE);
 }
 
-void popup_driver(COPY_FILE_INFO* cfi) {
+int popup_driver(void* args) {
+	COPY_FILE_INFO* cfi = NULL;
 	int ch = 0;
 
-	cfi->s_wnd = win_menu;
-	while((ch = getch()) != KEY_F(1)) {
+	cfi = (COPY_FILE_INFO*) args;
+	if (cfi != NULL)
+		cfi->s_wnd = win_menu;
+
+	while(ch = getch()) {
 		switch (ch) {
 			case KEY_DOWN:
 				if (is_on_button)
@@ -190,10 +194,9 @@ void popup_driver(COPY_FILE_INFO* cfi) {
 			case KEY_ENTER:
 				if (!is_on_button)
 					switch_to_buttons();
-				else {
-					driver_buttons(current_item(popup_menu), cfi);
-					return;
-				}
+				else
+					return driver_buttons(current_item(popup_menu), cfi);
+
 				break;
 
 			case KEY_BACKSPACE:

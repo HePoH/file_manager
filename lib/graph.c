@@ -64,6 +64,7 @@ void init_workspace(DIR_INFO** ld, DIR_INFO** rd){
 void print_dir_static(DIR_INFO* di) {
 	FILE_INFO_LIST* p = NULL;
 	struct tm* timeinfo = NULL;
+	struct passwd* pwuser = NULL;
 	char mt_buffer[BUF_SIZE];
 
 	p = di->head_file;
@@ -111,7 +112,6 @@ void print_dir_static(DIR_INFO* di) {
 	wprintw(di->pr_wnd, "Prm\n\n");
 
 	while(p) {
-		struct passwd* pwuser;
 		timeinfo = localtime(&p->file_stat.st_mtim.tv_sec);
 		strftime (mt_buffer, BUF_SIZE, "%b %e %R%n", timeinfo);
 
@@ -122,7 +122,10 @@ void print_dir_static(DIR_INFO* di) {
 		}
 
 		wprintw(di->ow_wnd, "%s\n", pwuser->pw_name);
-		wprintw(di->s_wnd, "%ld\n", p->file_stat.st_size);
+
+		(p->file_stat.st_size < 1000000000) ?
+		wprintw(di->s_wnd, "%ld\n", p->file_stat.st_size) : wprintw(di->s_wnd, "%ldM\n", (int)((double)p->file_stat.st_size/1000));
+
 		wprintw(di->mt_wnd, "%s", mt_buffer);
 		wprintw(di->pr_wnd, "%o\n", p->file_stat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO));
 
@@ -191,31 +194,25 @@ void print_dir_dynamic(DIR_INFO* di, int bg_c) {
 	wrefresh(di->fn_wnd);
 }
 
-void copy_action_btn_ok(void* args) {
+int copy_action_btn_ok(void* args) {
 	COPY_FILE_INFO* cfi;
 	cfi = (COPY_FILE_INFO*) args;
 
-        /*mvprintw(LINES-2, 1, "[*] OK: ");
+	if (strlen(popup_fields[1]) > 0 && strlen(popup_fields[3]) > 0) {
+		strncpy(cfi->fn_src, trim(field_buffer(popup_fields[1], 0)), BUF_SIZE - 1);
+		strncpy(cfi->fn_dst, trim(field_buffer(popup_fields[3], 0)), BUF_SIZE - 1);
 
-        for (i = 0; i < popup_form->maxfield; i++) {
-                printw("%s", trim(field_buffer(popup_fields[i], 0)));
+		return 1;
+	}
 
-                if (field_opts(popup_fields[i]) & O_ACTIVE)
-                        printw("\t");
-        }*/
-
-	strncpy(cfi->fn_src, trim(field_buffer(popup_fields[1], 0)), BUF_SIZE - 1);
-	strncpy(cfi->fn_dst, trim(field_buffer(popup_fields[3], 0)), BUF_SIZE - 1);
-
-        refresh();
+	return 0;
 }
 
-void copy_action_btn_cancel(void* args) {
-        mvprintw(LINES-2, 1, "[*] QUIT: F1 to quit");
-        refresh();
+int copy_action_btn_cancel(void* args) {
+	return 0;
 }
 
-void display_copy_form(COPY_FILE_INFO* cfi) {
+int display_copy_form(COPY_FILE_INFO* cfi) {
 	char* requests[4] = { "From:", NULL, "To:", NULL };
 	struct actions act_ok, act_quit;
 
@@ -241,7 +238,45 @@ void display_copy_form(COPY_FILE_INFO* cfi) {
 	refresh();
 	popup_refresh();
 
-	popup_driver(cfi);
+	return popup_driver(cfi);
+
+	/*popup_delete();
+	free(button_actions[0]);
+	free(button_actions[1]);
+	free(button_actions);*/
+}
+
+int del_action_btn_ok(void* args) {
+	return 1;
+}
+
+int del_action_btn_cancel(void* args) {
+	return 0;
+}
+
+int display_del_form(char* del_file) {
+	char* requests[2] = { "File:", NULL };
+	struct actions act_ok, act_quit;
+
+	requests[1] = del_file;
+
+	act_ok.key = " OK";
+	act_ok.func = del_action_btn_ok;
+	act_quit.key = " CANCEL";
+	act_quit.func = del_action_btn_cancel;
+
+	button_actions = malloc(sizeof(struct action *) * 3);
+	button_actions[0] = &act_ok;
+	button_actions[1] = &act_quit;
+	button_actions[2] = NULL;
+
+	curs_set(1);
+	popup_new(11, COLS/2, (LINES-13)/2, COLS/4, 2, requests, 2, "[ Remove ]");
+
+	refresh();
+	popup_refresh();
+
+	return popup_driver(NULL);
 
 	/*popup_delete();
 	free(button_actions[0]);

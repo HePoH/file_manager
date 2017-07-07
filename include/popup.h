@@ -6,13 +6,13 @@
 
 struct actions {
 	char *key;
-	void (*func)(void*);
+	int (*func)(void*);
 };
 
 void popup_new(int rows, int cols, int posy, int posx, int nb_buttons, char **requests, int nb_fields, char* title);
 void popup_delete(void);
 void popup_refresh(void);
 bool popup_exists(void);
-void popup_driver(COPY_FILE_INFO* cfi);
+int popup_driver(void* args);
 
 #endif

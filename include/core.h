@@ -52,9 +52,8 @@ typedef struct cfi {
 	char fn_src[BUF_SIZE];
 	char fn_dst[BUF_SIZE];
 
-	int cur_size;
+	long cur_size;
 	struct stat fs_src;
-	struct stat fs_dst;
 
 	WINDOW *s_wnd;
 	int cols, rows;
